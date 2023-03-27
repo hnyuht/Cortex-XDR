@@ -6,7 +6,7 @@ $output_folder = "C:\Temp\CortexXDR"
 if (!(Test-Path $output_folder)) {
     New-Item -ItemType Directory -Path $output_folder | Out-Null
 }
-$output_file = Join-Path $output_folder "$env:COMPUTERNAME_output.txt"
+$output_file = Join-Path $output_folder $env:COMPUTERNAME"_output.txt"
 
 # Define the headers for the output file
 $headers = "Path", "Filename", "File Creation", "File Size"
