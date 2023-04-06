@@ -1,0 +1,3 @@
+####One-Liner to pull up the Windows Update####
+####Use with Live Terminal or any product with Powershell####
+if ((New-Object -ComObject Microsoft.Update.AutoUpdate).DetectNow()) { Write-Host "Your system is up to date." } else { Write-Host "Updates available:"; (New-Object -ComObject Microsoft.Update.Session).CreateUpdateSearcher().Search("IsInstalled=0").Updates | ForEach-Object { Write-Host $_.Title } }
