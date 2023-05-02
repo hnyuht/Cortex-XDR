@@ -2,7 +2,11 @@ import os
 
 root_directory = 'C:\\'
 extensions = ['.xlsx', '.doc', '.docx', '.pdf']
-output_file = 'C:\\temp\\XDR\\file_list.txt'
+output_directory = 'C:\\temp\\XDR'
+output_file = os.path.join(output_directory, 'file_list.txt')
+
+if not os.path.exists(output_directory):
+    os.makedirs(output_directory)
 
 with open(output_file, 'w') as f:
     for root, dirs, files in os.walk(root_directory):
