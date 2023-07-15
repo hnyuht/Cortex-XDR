@@ -1,6 +1,3 @@
-###You need to run the command below###
-###python -m pip install pywin32###
-
 import win32com.client
 import os
 
