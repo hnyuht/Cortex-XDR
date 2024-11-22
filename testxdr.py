@@ -1,4 +1,5 @@
 import requests
+import os
 
 def test_connection(urls):
     results = {}
@@ -22,6 +23,17 @@ def test_connection(urls):
     return results
 
 
+def save_results_to_file(results, file_path):
+    try:
+        with open(file_path, "w") as file:
+            file.write("Test Results:\n")
+            for url, status in results.items():
+                file.write(f"{url} | {status}\n")
+        print(f"\nResults saved to {file_path}")
+    except Exception as e:
+        print(f"Failed to save results: {str(e)}")
+
+
 if __name__ == "__main__":
     # List of URLs to test
     urls = [
@@ -37,6 +49,10 @@ if __name__ == "__main__":
     print("Starting connectivity tests...\n")
     results = test_connection(urls)
     
-    print("\nTest Results:")
-    for url, status in results.items():
-        print(f"{url} | {status}")
+    # Create directory if it doesn't exist
+    output_dir = "C:\\temp\\xdr"
+    os.makedirs(output_dir, exist_ok=True)
+    
+    # Save results to a text file
+    output_file = os.path.join(output_dir, "connection_test_results.txt")
+    save_results_to_file(results, output_file)
