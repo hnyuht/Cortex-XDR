@@ -1,37 +1,31 @@
 import json
 import requests
 
-# Base URL and API credentials
-base_url = "https://api-[REMOVE BRACKETS TENANT URL].xdr.us.paloaltonetworks.com/public_api/v1/"
-api_key_id = "API ID"
-api_key = "API KEY"
+# Updated URL and API details
+url = "https://api-yourfqdn/public_api/v1/get_risky_users"  # Replace with your endpoint
 
-def make_request(endpoint, payload=None):
-    url = base_url.format(fqdn="your_api_fqdn") + endpoint
-    headers = {
-        "x-xdr-auth-id": str(api_key_id),
-        "Authorization": api_key,
-        'Content-Type': "application/json",
-        'Accept': "application/json"
-    }
-    try:
-        res = requests.post(url=url, headers=headers, json=payload)
-        res.raise_for_status()  # Raise exception for bad response status
-        print("Raw Response Text:", res.text)  # Print raw response for debugging
-        res_json = res.json()
-    except requests.exceptions.RequestException as e:
-        print(f"Request failed: {e}")
-        res_json = None
-    except ValueError as e:
-        print(f"Failed to parse response JSON: {e}")
-        res_json = None
-    return res_json
+headers = {
+    "Authorization": "API KEY",  # Replace with your API key
+    "x-xdr-auth-id": "API ID",  # Replace with your API ID
+    "Content-Type": "application/json",
+    "Accept": "application/json"
+}
 
-# Test with a basic endpoint, like 'version' or 'status'
-response = make_request("version", payload={})
+# No payload needed for this endpoint, but you can pass empty or specific data if needed
+payload = {}
 
-# Print raw response and check if it's valid JSON
-if response:
-    print("Valid JSON Response:", response)
-else:
-    print("No valid JSON response or still getting HTML.")
+try:
+    response = requests.post(url, json=payload, headers=headers)
+    response.raise_for_status()  # Raise exception for bad response status
+    res_json = response.json()
+
+    if res_json and 'reply' in res_json:
+        top_users = res_json['reply'][:10]  # Get top 10 users
+        for user in top_users:
+            print(f"User ID: {user['id']}, Score: {user['score']}")
+    else:
+        print("No response or 'reply' key not found in response.")
+except requests.exceptions.RequestException as e:
+    print(f"Request failed: {e}")
+except ValueError as e:
+    print(f"Failed to parse response JSON: {e}")
