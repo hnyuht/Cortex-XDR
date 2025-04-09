@@ -17,6 +17,7 @@ def make_request(endpoint, payload=None):
     try:
         res = requests.post(url=url, headers=headers, json=payload)
         res.raise_for_status()  # Raise exception for bad response status
+        print("Raw Response Text:", res.text)  # Print raw response for debugging
         res_json = res.json()
     except requests.exceptions.RequestException as e:
         print(f"Request failed: {e}")
