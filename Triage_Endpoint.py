@@ -5,6 +5,13 @@ base_url = "https://api-yourfqdn/public_api/v1/"  # Replace with your actual bas
 api_key_id = ""  # Replace with your actual API ID
 api_key = ""     # Replace with your actual API KEY
 
+import requests
+
+# Base URL and API credentials
+base_url = "https://api-yourfqdn/public_api/v1/"  # Replace with your actual base URL
+api_key_id = ""  # Replace with your actual API ID
+api_key = ""     # Replace with your actual API KEY
+
 # Function to make a request to the triage endpoint
 def make_request(payload):
     url = base_url + "triage_endpoint"
@@ -17,6 +24,11 @@ def make_request(payload):
     try:
         # Sending the request
         res = requests.post(url=url, headers=headers, json=payload)
+        
+        # Log status code and raw response text for debugging
+        print("Status Code:", res.status_code)
+        print("Raw Response:", res.text)
+        
         res.raise_for_status()  # Raise exception for bad response status
 
         # Return the parsed JSON response
