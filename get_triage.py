@@ -1,31 +1,35 @@
-import json
 import requests
 
-# Updated URL and API details
-url = "https://api-yourfqdn/public_api/v1/get_risky_users"  # Replace with your endpoint
+# Base URL and API credentials
+base_url = "https://api-yourfqdn.xdr.us.paloaltonetworks.com/public_api/v1/"  # Replace with your actual base URL
+api_key_id = "API ID"  # Replace with your actual API ID
+api_key = "API KEY"    # Replace with your actual API KEY
 
-headers = {
-    "Authorization": "API KEY",  # Replace with your API key
-    "x-xdr-auth-id": "API ID",  # Replace with your API ID
-    "Content-Type": "application/json",
-    "Accept": "application/json"
-}
+# Function to make a request to the specified endpoint
+def make_request(endpoint, payload=None):
+    url = base_url + endpoint
+    headers = {
+        "x-xdr-auth-id": str(api_key_id),
+        "Authorization": api_key,
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+    }
+    try:
+        res = requests.post(url=url, headers=headers, json=payload)
+        res.raise_for_status()  # Raise exception for bad response status
+        return res.json()  # Return the parsed JSON response
+    except requests.exceptions.RequestException as e:
+        print(f"Request failed: {e}")
+        return None
+    except ValueError as e:
+        print(f"Failed to parse response JSON: {e}")
+        return None
 
-# No payload needed for this endpoint, but you can pass empty or specific data if needed
-payload = {}
+# Request triage presets
+response = make_request("get_triage_presets")  # Use the correct endpoint here
 
-try:
-    response = requests.post(url, json=payload, headers=headers)
-    response.raise_for_status()  # Raise exception for bad response status
-    res_json = response.json()
-
-    if res_json and 'reply' in res_json:
-        top_users = res_json['reply'][:10]  # Get top 10 users
-        for user in top_users:
-            print(f"User ID: {user['id']}, Score: {user['score']}")
-    else:
-        print("No response or 'reply' key not found in response.")
-except requests.exceptions.RequestException as e:
-    print(f"Request failed: {e}")
-except ValueError as e:
-    print(f"Failed to parse response JSON: {e}")
+# Process the response and print the result
+if response:
+    print(response)  # Print the entire response if it exists
+else:
+    print("No response or error occurred.")
