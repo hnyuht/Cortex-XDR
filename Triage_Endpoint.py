@@ -17,10 +17,13 @@ def make_request(endpoint, payload=None):
 
     try:
         response = requests.post(url, headers=headers, json=payload)
-        response.raise_for_status()
-        return response.json()
-    except (requests.exceptions.RequestException, ValueError):
-        return None
+        response.raise_for_status()  # Will raise HTTPError for bad responses (4xx or 5xx)
+        try:
+            return response.json()
+        except ValueError:
+            return {"error": "Response not in JSON format", "raw": response.text}
+    except requests.exceptions.RequestException as e:
+        return {"error": str(e)}
 
 def handle_triage(agent_ids, collector_uuid):
     payload = {
@@ -31,8 +34,10 @@ def handle_triage(agent_ids, collector_uuid):
     }
 
     result = make_request("triage_endpoint", payload)
+    if result and "error" in result:
+        return result  # Return error details if present
     if not result or "reply" not in result:
-        return None
+        return {"error": "No 'reply' in response", "raw": result}
 
     reply = result["reply"]
     return {
@@ -43,18 +48,23 @@ def handle_triage(agent_ids, collector_uuid):
 
 # === USAGE EXAMPLE ===
 triage_result = handle_triage(
-    agent_ids=["REAL_AGENT_ID"],  # Replace with actual ID
-    collector_uuid="REAL_COLLECTOR_UUID"  # Replace with actual UUID
+    agent_ids=["REAL_AGENT_ID"],  # Replace with actual agent ID
+    collector_uuid="REAL_COLLECTOR_UUID"  # Replace with actual collector UUID
 )
 
 if triage_result:
-    action_id = triage_result["action_id"]
-    success = triage_result["success"]
-    failed = triage_result["failed"]
+    if "error" in triage_result:
+        print(f"❌ Error: {triage_result['error']}")
+        if "raw" in triage_result:
+            print(f"🔍 Raw response: {triage_result['raw']}")
+    else:
+        action_id = triage_result["action_id"]
+        success = triage_result["success"]
+        failed = triage_result["failed"]
 
-    if success:
-        print(f"✅ Triage action {action_id} succeeded for: {success}")
-    if failed:
-        print(f"❌ Triage action {action_id} failed for: {failed}")
+        if success:
+            print(f"✅ Triage action {action_id} succeeded for: {success}")
+        if failed:
+            print(f"❌ Triage action {action_id} failed for: {failed}")
 else:
     print("⚠️ Triage request failed or returned no data.")
