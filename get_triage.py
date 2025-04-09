@@ -27,18 +27,11 @@ def make_request(endpoint, payload=None):
         res_json = None
     return res_json
 
-# Get triage presets
-response = make_request("get_triage_presets", payload={"request_data": {}})
+# Test with a basic endpoint, like 'version' or 'status'
+response = make_request("version", payload={})
 
-# Display the triage presets
-if response and 'reply' in response:
-    for preset in response['reply']['triage_presets']:
-        print(f"UUID: {preset['uuid']}")
-        print(f"Name: {preset['name']}")
-        print(f"OS: {preset['os']}")
-        print(f"Description: {preset['description']}")
-        print(f"Created By: {preset['created_by']}")
-        print(f"Type: {preset['type']}")
-        print("-" * 40)
+# Print raw response and check if it's valid JSON
+if response:
+    print("Valid JSON Response:", response)
 else:
-    print("No response or 'reply' key not found in response.")
+    print("No valid JSON response or still getting HTML.")
