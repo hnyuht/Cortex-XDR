@@ -15,14 +15,21 @@ def make_request(endpoint, payload=None):
         "Accept": "application/json"
     }
     try:
+        # Sending the request
         res = requests.post(url=url, headers=headers, json=payload)
         res.raise_for_status()  # Raise exception for bad response status
+
+        # Debugging: Print raw response text
+        print("Raw Response:", res.text)
+
+        # Attempt to parse JSON response
         return res.json()  # Return the parsed JSON response
     except requests.exceptions.RequestException as e:
         print(f"Request failed: {e}")
         return None
     except ValueError as e:
         print(f"Failed to parse response JSON: {e}")
+        print(f"Response content: {res.text}")  # Print raw response content for debugging
         return None
 
 # Request triage presets
