@@ -1,10 +1,10 @@
 import json
 import requests
 
-# Set your actual tenant FQDN and API credentials here
-base_url = "https://api-yourfqdn/public_api/v1/"
-api_key_id = "YOUR_API_ID"
-api_key = "YOUR_API_KEY"
+# === CONFIGURE YOUR DETAILS HERE ===
+base_url = "https://api-yourfqdn/public_api/v1/"  # Replace 'yourfqdn' with actual tenant
+api_key_id = "YOUR_API_ID"                        # Replace with your actual API ID
+api_key = "YOUR_API_KEY"                          # Replace with your actual API key
 
 def make_request(endpoint, payload=None):
     url = base_url + endpoint
@@ -14,29 +14,33 @@ def make_request(endpoint, payload=None):
         "Content-Type": "application/json",
         "Accept": "application/json"
     }
+    
     try:
         res = requests.post(url, headers=headers, json=payload)
         res.raise_for_status()
-        return res.json()
+        try:
+            return res.json()
+        except ValueError:
+            print("⚠️ Response not in JSON format. Raw response below:")
+            print(res.text)
+            return None
     except requests.exceptions.RequestException as e:
-        print(f"Request failed: {e}")
-    except ValueError as e:
-        print(f"Failed to parse response JSON: {e}")
-    return None
+        print(f"❌ Request failed: {e}")
+        return None
 
-# Payload for triage_endpoint
+# === TRIAGE ENDPOINT REQUEST ===
 triage_payload = {
     "request_data": {
-        "agent_ids": ["agent_id_123"],
-        "collector_uuid": "collector_uuid_abc"
+        "agent_ids": ["REPLACE_WITH_AGENT_ID"],         # Example: ["abc123"]
+        "collector_uuid": "REPLACE_WITH_COLLECTOR_UUID" # Example: "uuid-xyz"
     }
 }
 
-# Call triage_endpoint
 response = make_request("triage_endpoint", triage_payload)
 
-# Display response
+# === HANDLE RESPONSE ===
 if response:
+    print("✅ Triage Data Received:")
     print(json.dumps(response, indent=2))
 else:
-    print("No data received.")
+    print("❌ No valid response received.")
