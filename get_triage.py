@@ -17,26 +17,25 @@ headers = {
 # === MAKE THE API REQUEST ===
 try:
     response = requests.post(url, json=payload, headers=headers)
-    
-    # Check the HTTP status code for better error reporting
-    print(f"HTTP Status Code: {response.status_code}")
-    
-    # If the status code isn't in the 200 range, raise an exception
-    response.raise_for_status()
 
-    # Try to parse the JSON response
-    try:
-        result = response.json()
-        print(result)
-    except ValueError:
-        # If it fails to parse as JSON, print the raw response and handle it
-        print("❌ Error: Response not in JSON format. Here's the raw response:")
-        print(response.text)
+    # Check if the status code is 200 OK
+    if response.status_code == 200:
+        try:
+            # Attempt to parse the JSON response
+            result = response.json()
+
+            # Check if the "reply" and "triage_presets" keys exist in the response
+            if "reply" in result and "triage_presets" in result["reply"]:
+                print(result)  # Only print the JSON with "triage_presets"
+            else:
+                # Optionally handle case where the response doesn't contain the expected structure
+                print("❌ Response does not contain the expected 'triage_presets' data.")
+        except ValueError:
+            # If the response is not valid JSON, we do nothing (silently ignore it)
+            pass
+    else:
+        # If the response status code isn't 200, we print a message and exit
+        print(f"❌ Received non-200 response: HTTP {response.status_code}")
 
 except requests.exceptions.RequestException as e:
-    # If the request fails (due to network issues, invalid URL, etc.)
     print(f"❌ Request failed: {e}")
-    if hasattr(response, 'status_code'):
-        print(f"HTTP Status Code: {response.status_code}")  # Print status code in case of error
-    if hasattr(response, 'text'):
-        print(f"Raw Response: {response.text}")  # Print raw HTML response in case of failure
