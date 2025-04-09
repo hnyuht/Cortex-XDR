@@ -22,21 +22,39 @@ def make_request(endpoint, payload=None):
     except (requests.exceptions.RequestException, ValueError):
         return None
 
-# === TRIAGE ENDPOINT PAYLOAD ===
-triage_payload = {
-    "request_data": {
-        "agent_ids": ["REAL_AGENT_ID"],         # Replace with actual agent ID
-        "collector_uuid": "REAL_COLLECTOR_UUID" # Replace with actual collector UUID
+def handle_triage(agent_ids, collector_uuid):
+    payload = {
+        "request_data": {
+            "agent_ids": agent_ids,
+            "collector_uuid": collector_uuid
+        }
     }
-}
 
-# === API CALL ===
-triage_data = make_request("triage_endpoint", triage_payload)
+    result = make_request("triage_endpoint", payload)
+    if not result or "reply" not in result:
+        return None
 
-# === You can handle `triage_data` however you like from here ===
-if triage_data:
-    # Example: process or log response
-    pass
+    reply = result["reply"]
+    return {
+        "action_id": reply.get("group_action_id"),
+        "success": reply.get("successful_agent_ids", []),
+        "failed": reply.get("unsuccessful_agent_ids", [])
+    }
+
+# === USAGE EXAMPLE ===
+triage_result = handle_triage(
+    agent_ids=["REAL_AGENT_ID"],  # Replace with actual ID
+    collector_uuid="REAL_COLLECTOR_UUID"  # Replace with actual UUID
+)
+
+if triage_result:
+    action_id = triage_result["action_id"]
+    success = triage_result["success"]
+    failed = triage_result["failed"]
+
+    if success:
+        print(f"✅ Triage action {action_id} succeeded for: {success}")
+    if failed:
+        print(f"❌ Triage action {action_id} failed for: {failed}")
 else:
-    # Example: log error or raise exception
-    pass
+    print("⚠️ Triage request failed or returned no data.")
