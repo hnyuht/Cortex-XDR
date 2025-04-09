@@ -28,13 +28,14 @@ try:
             if "reply" in result and "triage_presets" in result["reply"]:
                 print(result)  # Only print the JSON with "triage_presets"
             else:
-                # Optionally handle case where the response doesn't contain the expected structure
+                # If the expected data is not found, print the raw response
                 print("❌ Response does not contain the expected 'triage_presets' data.")
+                print("Raw Response:", result)
         except ValueError:
-            # If the response is not valid JSON, we do nothing (silently ignore it)
-            pass
+            # If the response is not valid JSON, print the raw response text
+            print("❌ Response is not valid JSON. Raw response:")
+            print(response.text)  # Raw response (likely HTML or malformed JSON)
     else:
-        # If the response status code isn't 200, we print a message and exit
         print(f"❌ Received non-200 response: HTTP {response.status_code}")
 
 except requests.exceptions.RequestException as e:
