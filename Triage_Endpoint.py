@@ -1,10 +1,10 @@
 import json
 import requests
 
-# === CONFIGURE YOUR DETAILS HERE ===
-base_url = "https://api-yourfqdn/public_api/v1/"  # Replace 'yourfqdn' with actual tenant
-api_key_id = "YOUR_API_ID"                        # Replace with your actual API ID
-api_key = "YOUR_API_KEY"                          # Replace with your actual API key
+# === CONFIGURATION ===
+base_url = "https://api-yourtenant.xdr.us.paloaltonetworks.com/public_api/v1/"  # Replace with actual tenant URL
+api_key_id = "YOUR_API_ID"
+api_key = "YOUR_API_KEY"
 
 def make_request(endpoint, payload=None):
     url = base_url + endpoint
@@ -14,33 +14,29 @@ def make_request(endpoint, payload=None):
         "Content-Type": "application/json",
         "Accept": "application/json"
     }
-    
+
     try:
-        res = requests.post(url, headers=headers, json=payload)
-        res.raise_for_status()
-        try:
-            return res.json()
-        except ValueError:
-            print("⚠️ Response not in JSON format. Raw response below:")
-            print(res.text)
-            return None
-    except requests.exceptions.RequestException as e:
-        print(f"❌ Request failed: {e}")
+        response = requests.post(url, headers=headers, json=payload)
+        response.raise_for_status()
+        return response.json()
+    except (requests.exceptions.RequestException, ValueError):
         return None
 
-# === TRIAGE ENDPOINT REQUEST ===
+# === TRIAGE ENDPOINT PAYLOAD ===
 triage_payload = {
     "request_data": {
-        "agent_ids": ["REPLACE_WITH_AGENT_ID"],         # Example: ["abc123"]
-        "collector_uuid": "REPLACE_WITH_COLLECTOR_UUID" # Example: "uuid-xyz"
+        "agent_ids": ["REAL_AGENT_ID"],         # Replace with actual agent ID
+        "collector_uuid": "REAL_COLLECTOR_UUID" # Replace with actual collector UUID
     }
 }
 
-response = make_request("triage_endpoint", triage_payload)
+# === API CALL ===
+triage_data = make_request("triage_endpoint", triage_payload)
 
-# === HANDLE RESPONSE ===
-if response:
-    print("✅ Triage Data Received:")
-    print(json.dumps(response, indent=2))
+# === You can handle `triage_data` however you like from here ===
+if triage_data:
+    # Example: process or log response
+    pass
 else:
-    print("❌ No valid response received.")
+    # Example: log error or raise exception
+    pass
