@@ -1,42 +1,43 @@
+import json
 import requests
 
-# === CONFIGURATION ===
-url = "https://api-yourtenant.xdr.us.paloaltonetworks.com/public_api/v1/get_triage_presets"  # Replace with actual URL
-api_key_id = "YOUR_API_ID"  # Replace with your actual API ID
-api_key = "YOUR_API_KEY"  # Replace with your actual API Key
+# Base URL and API credentials
+base_url = "https://api-[REMOVE BRACKETS TENANT URL].xdr.us.paloaltonetworks.com/public_api/v1/"
+api_key_id = "API ID"
+api_key = "API KEY"
 
-# === PAYLOAD AND HEADERS ===
-payload = { "request_data": {} }
-headers = {
-    "Authorization": api_key,
-    "x-xdr-auth-id": api_key_id,
-    "Content-Type": "application/json",
-    "Accept": "application/json"
-}
+def make_request(endpoint, payload=None):
+    url = base_url.format(fqdn="your_api_fqdn") + endpoint
+    headers = {
+        "x-xdr-auth-id": str(api_key_id),
+        "Authorization": api_key,
+        'Content-Type': "application/json",
+        'Accept': "application/json"
+    }
+    try:
+        res = requests.post(url=url, headers=headers, json=payload)
+        res.raise_for_status()  # Raise exception for bad response status
+        res_json = res.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Request failed: {e}")
+        res_json = None
+    except ValueError as e:
+        print(f"Failed to parse response JSON: {e}")
+        res_json = None
+    return res_json
 
-# === MAKE THE API REQUEST ===
-try:
-    response = requests.post(url, json=payload, headers=headers)
+# Get triage presets
+response = make_request("get_triage_presets", payload={"request_data": {}})
 
-    # Check if the status code is 200 OK
-    if response.status_code == 200:
-        try:
-            # Attempt to parse the JSON response
-            result = response.json()
-
-            # Check if the "reply" and "triage_presets" keys exist in the response
-            if "reply" in result and "triage_presets" in result["reply"]:
-                print(result)  # Only print the JSON with "triage_presets"
-            else:
-                # If the expected data is not found, print the raw response
-                print("❌ Response does not contain the expected 'triage_presets' data.")
-                print("Raw Response:", result)
-        except ValueError:
-            # If the response is not valid JSON, print the raw response text
-            print("❌ Response is not valid JSON. Raw response:")
-            print(response.text)  # Raw response (likely HTML or malformed JSON)
-    else:
-        print(f"❌ Received non-200 response: HTTP {response.status_code}")
-
-except requests.exceptions.RequestException as e:
-    print(f"❌ Request failed: {e}")
+# Display the triage presets
+if response and 'reply' in response:
+    for preset in response['reply']['triage_presets']:
+        print(f"UUID: {preset['uuid']}")
+        print(f"Name: {preset['name']}")
+        print(f"OS: {preset['os']}")
+        print(f"Description: {preset['description']}")
+        print(f"Created By: {preset['created_by']}")
+        print(f"Type: {preset['type']}")
+        print("-" * 40)
+else:
+    print("No response or 'reply' key not found in response.")
