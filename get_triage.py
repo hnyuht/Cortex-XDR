@@ -1,11 +1,11 @@
+import json
 import requests
 
-# Base URL and API credentials
-base_url = "https://api-yourfqdn.xdr.us.paloaltonetworks.com/public_api/v1/"  # Replace with your actual base URL
-api_key_id = "API ID"  # Replace with your actual API ID
-api_key = "API KEY"    # Replace with your actual API KEY
+# NOTES: PLEASE CHECK URL
+base_url = "https://api-[REMOVE BRACKETS TENANT URL].xdr.us.paloaltonetworks.com/public_api/v1/"
+api_key_id = "API ID"
+api_key = "API KEY"
 
-# Function to make a request to the specified endpoint
 def make_request(endpoint, payload=None):
     url = base_url + endpoint
     headers = {
@@ -15,28 +15,17 @@ def make_request(endpoint, payload=None):
         "Accept": "application/json"
     }
     try:
-        # Sending the request
         res = requests.post(url=url, headers=headers, json=payload)
-        res.raise_for_status()  # Raise exception for bad response status
-
-        # Debugging: Print raw response text
-        print("Raw Response:", res.text)
-
-        # Attempt to parse JSON response
-        return res.json()  # Return the parsed JSON response
+        res.raise_for_status()
+        res_json = res.json()
     except requests.exceptions.RequestException as e:
         print(f"Request failed: {e}")
-        return None
+        res_json = None
     except ValueError as e:
         print(f"Failed to parse response JSON: {e}")
-        print(f"Response content: {res.text}")  # Print raw response content for debugging
-        return None
+        res_json = None
+    return res_json
 
-# Request triage presets
-response = make_request("get_triage_presets")  # Use the correct endpoint here
-
-# Process the response and print the result
-if response:
-    print(response)  # Print the entire response if it exists
-else:
-    print("No response or error occurred.")
+# Call the get_triage_presets endpoint
+response = make_request("get_triage_presets", {"request_data": {}})
+print(json.dumps(response, indent=4))
